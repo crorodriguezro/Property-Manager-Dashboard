@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import {
   BarChart2,
   Receipt,
@@ -14,6 +16,8 @@ import {
   Settings,
   HelpCircle,
   Menu,
+  FileText,
+  UserCircle,
 } from "lucide-react"
 
 import { Home } from "lucide-react"
@@ -95,6 +99,23 @@ export default function Sidebar() {
 
           <div className="flex-1 overflow-y-auto py-4 px-4">
             <div className="space-y-6">
+              <div>
+                <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Gestión
+                </div>
+                <div className="space-y-1">
+                  <NavItem href="/inmuebles" icon={Building2}>
+                    Inmuebles
+                  </NavItem>
+                  <NavItem href="/contratos/nuevo" icon={FileText}>
+                    Contratos
+                  </NavItem>
+                  <NavItem href="#" icon={UserCircle}>
+                    Personas
+                  </NavItem>
+                </div>
+              </div>
+
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Overview
