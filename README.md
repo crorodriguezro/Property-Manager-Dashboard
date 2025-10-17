@@ -1,4 +1,4 @@
-# Financial Dashboard
+# Property Manager Dashboard
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*
 
@@ -7,8 +7,21 @@
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+This is a property management web application similar to DoorLoop, designed to streamline property management operations.
+
+### MVP Features
+
+The minimum viable product (MVP) includes the following core functionalities:
+
+- **Inmuebles (Properties)**: Create and manage property listings
+- **Contratos (Leases)**: Create and manage lease agreements
+- **Personas (Tenants)**: Create and manage tenant information
+- **Payment Tracking**: Track and monitor rental payments
+
+### Language
+
+- **User Interface**: All text displayed in components is in Spanish
+- **Code**: All code, variables, and functions are written in English
 
 ## Deployment
 
