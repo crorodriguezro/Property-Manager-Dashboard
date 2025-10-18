@@ -66,108 +66,55 @@ export function Wizard({
   }
 
   const progressIndicator = (
-    <div className="relative">
-      <div className="flex items-start justify-between mb-2">
-        {steps.map((step, index) => {
-          const isActive = currentStep === step.number
-          const isCompleted = currentStep > step.number
-          const isPending = currentStep < step.number
-
-          return (
-            <div key={step.number} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1 relative">
-                <div className="relative z-10">
-                  <div
-                    className={`
-                      w-12 h-12 rounded-full flex items-center justify-center font-semibold
-                      transition-all duration-300 ease-in-out
-                      ${
-                        isCompleted
-                          ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30 scale-100"
-                          : isActive
-                            ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-xl shadow-blue-500/40 scale-110 ring-4 ring-blue-100 dark:ring-blue-900"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-2 border-gray-300 dark:border-gray-700"
-                      }
-                    `}
-                  >
-                    {isCompleted ? (
-                      <Check className="h-6 w-6 animate-in fade-in zoom-in duration-300" />
-                    ) : (
-                      <span className="text-base">{step.number}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-3 text-center max-w-[140px]">
-                  <span
-                    className={`
-                      block text-sm font-semibold transition-colors duration-200
-                      ${
-                        isActive
-                          ? "text-blue-700 dark:text-blue-400"
-                          : isCompleted
-                            ? "text-green-700 dark:text-green-400"
-                            : "text-gray-500 dark:text-gray-400"
-                      }
-                    `}
-                  >
-                    {step.title}
-                  </span>
-                  {step.description && (
-                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-1 leading-tight">
-                      {step.description}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {index < steps.length - 1 && (
-                <div className="flex-1 px-2 pt-6 -mt-6">
-                  <div className="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className={`
-                        absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-in-out
-                        ${
-                          currentStep > step.number
-                            ? "w-full bg-gradient-to-r from-green-500 to-green-600"
-                            : "w-0 bg-gradient-to-r from-blue-500 to-blue-600"
-                        }
-                      `}
-                    />
-                  </div>
-                </div>
-              )}
+    <div className="flex items-center justify-between">
+      {steps.map((step, index) => (
+        <div key={step.number} className="flex items-center flex-1">
+          <div className="flex flex-col items-center flex-1">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
+                currentStep >= step.number
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+              }`}
+            >
+              {currentStep > step.number ? <Check className="h-5 w-5" /> : step.number}
             </div>
-          )
-        })}
-      </div>
+            <span
+              className={`mt-2 text-sm font-medium ${
+                currentStep >= step.number ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              {step.title}
+            </span>
+            {step.description && (
+              <span className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1">{step.description}</span>
+            )}
+          </div>
+          {index < steps.length - 1 && (
+            <div
+              className={`h-1 flex-1 mx-4 transition-colors ${
+                currentStep > step.number ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+            />
+          )}
+        </div>
+      ))}
     </div>
   )
 
   const navigationButtons = (
-    <div className="flex items-center justify-between pt-8 border-t border-gray-200 dark:border-gray-800 mt-8">
-      <Button
-        variant="outline"
-        onClick={handlePrevious}
-        disabled={!canGoPrevious || isFirstStep}
-        size="lg"
-        className="min-w-[120px]"
-      >
+    <div className="flex justify-between pt-6">
+      <Button variant="outline" onClick={handlePrevious} disabled={!canGoPrevious || isFirstStep}>
         <ChevronLeft className="h-4 w-4 mr-2" />
         {previousButtonText}
       </Button>
-
-      <div className="text-sm text-gray-500 dark:text-gray-400">
-        Paso {currentStep} de {steps.length}
-      </div>
-
       {isLastStep ? (
-        <Button onClick={handleSubmit} size="lg" className="min-w-[120px] bg-green-600 hover:bg-green-700">
+        <Button onClick={handleSubmit}>
           {submitButtonText}
           <Check className="h-4 w-4 ml-2" />
         </Button>
       ) : (
-        <Button onClick={handleNext} disabled={!canGoNext} size="lg" className="min-w-[120px]">
+        <Button onClick={handleNext} disabled={!canGoNext}>
           {nextButtonText}
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
@@ -178,35 +125,31 @@ export function Wizard({
   const content = (
     <>
       {showHeader && (title || subtitle) && (
-        <div className="mb-10">
-          {title && (
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3">
-              {title}
-            </h1>
-          )}
-          {subtitle && <p className="text-lg text-gray-600 dark:text-gray-400">{subtitle}</p>}
+        <div className="mb-8">
+          {title && <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{title}</h1>}
+          {subtitle && <p className="text-gray-600 dark:text-gray-400">{subtitle}</p>}
         </div>
       )}
 
-      <div className="mb-10">{progressIndicator}</div>
+      <div className="mb-8">{progressIndicator}</div>
 
       {showCard ? (
-        <Card className="border-2 shadow-lg">
-          <CardContent className="pt-8 pb-6">
-            <div className="min-h-[400px]">{children}</div>
+        <Card>
+          <CardContent className="pt-6">
+            {children}
             {navigationButtons}
           </CardContent>
         </Card>
       ) : (
         <>
-          <div className="min-h-[400px]">{children}</div>
+          {children}
           {navigationButtons}
         </>
       )}
     </>
   )
 
-  return <div className="p-6 max-w-6xl mx-auto">{content}</div>
+  return <div className="p-6 max-w-5xl mx-auto">{content}</div>
 }
 
 export interface WizardStepContentProps {
@@ -220,9 +163,5 @@ export function WizardStepContent({ currentStep, stepNumber, children }: WizardS
     return null
   }
 
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300">
-      {children}
-    </div>
-  )
+  return <div className="space-y-6">{children}</div>
 }
