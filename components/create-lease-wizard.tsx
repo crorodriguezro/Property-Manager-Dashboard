@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ChevronLeft, ChevronRight, Plus, X, Check } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { Wizard, WizardStepContent } from "@/components/ui/wizard"
 
-// Mock data
 const mockProperties = [
   { id: "1", name: "Villa Moderna Miami Beach", address: "Miami Beach, FL 33340" },
   { id: "2", name: "Apartamento Centro", address: "Miami Beach, FL 33340" },
@@ -56,7 +56,6 @@ export default function CreateLeaseWizard() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isCreateTenantOpen, setIsCreateTenantOpen] = useState(false)
 
-  // Step 1: Property & Contract Details
   const [selectedProperty, setSelectedProperty] = useState("")
   const [selectedUnit, setSelectedUnit] = useState("")
   const [contractType, setContractType] = useState("")
@@ -68,7 +67,6 @@ export default function CreateLeaseWizard() {
   const [lateFeeAmount, setLateFeeAmount] = useState("")
   const [paymentFrequency, setPaymentFrequency] = useState("monthly")
 
-  // Step 2: Tenants
   const [selectedTenants, setSelectedTenants] = useState<string[]>([])
   const [newTenant, setNewTenant] = useState({
     name: "",
@@ -78,7 +76,6 @@ export default function CreateLeaseWizard() {
     notes: "",
   })
 
-  // Step 3: Fees and Deposits
   const [securityDeposit, setSecurityDeposit] = useState("")
   const [hoaFee, setHoaFee] = useState("")
   const [petFee, setPetFee] = useState("")
@@ -110,26 +107,12 @@ export default function CreateLeaseWizard() {
   }
 
   const handleCreateTenant = () => {
-    // In a real app, this would save to database
     console.log("[v0] Creating new tenant:", newTenant)
     setIsCreateTenantOpen(false)
     setNewTenant({ name: "", email: "", phone: "", idNumber: "", notes: "" })
   }
 
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1)
-    }
-  }
-
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-    }
-  }
-
   const handleSubmit = () => {
-    // In a real app, this would save the lease to database
     console.log("[v0] Submitting lease...")
     alert("Contrato creado exitosamente!")
   }
@@ -142,605 +125,536 @@ export default function CreateLeaseWizard() {
   ]
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Crear Nuevo Contrato</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Complete los siguientes pasos para crear un contrato de arrendamiento
-        </p>
-      </div>
+    <Wizard
+      steps={steps}
+      currentStep={currentStep}
+      onStepChange={setCurrentStep}
+      onComplete={handleSubmit}
+      title="Crear Nuevo Contrato"
+      subtitle="Complete los siguientes pasos para crear un contrato de arrendamiento"
+      nextButtonText="Siguiente"
+      previousButtonText="Anterior"
+      submitButtonText="Crear Contrato"
+    >
+      <WizardStepContent currentStep={currentStep} stepNumber={1}>
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Detalles de Propiedad y Contrato
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="property">Propiedad *</Label>
+              <Select value={selectedProperty} onValueChange={setSelectedProperty}>
+                <SelectTrigger id="property">
+                  <SelectValue placeholder="Seleccionar propiedad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockProperties.map((property) => (
+                    <SelectItem key={property.id} value={property.id}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Progress Steps */}
-      <div className="mb-8">
+            <div className="space-y-2">
+              <Label htmlFor="unit">Unidad *</Label>
+              <Select value={selectedUnit} onValueChange={setSelectedUnit} disabled={!selectedProperty}>
+                <SelectTrigger id="unit">
+                  <SelectValue placeholder="Seleccionar unidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableUnits.map((unit) => (
+                    <SelectItem key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contractType">Tipo de Contrato *</Label>
+              <Select value={contractType} onValueChange={setContractType}>
+                <SelectTrigger id="contractType">
+                  <SelectValue placeholder="Seleccionar tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="month-to-month">Mes a Mes</SelectItem>
+                  <SelectItem value="fixed-term">Plazo Fijo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentFrequency">Frecuencia de Pago *</Label>
+              <Select value={paymentFrequency} onValueChange={setPaymentFrequency}>
+                <SelectTrigger id="paymentFrequency">
+                  <SelectValue placeholder="Seleccionar frecuencia" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="biweekly">Quincenal</SelectItem>
+                  <SelectItem value="monthly">Mensual</SelectItem>
+                  <SelectItem value="quarterly">Trimestral</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Fecha de Inicio *</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endDate">Fecha de Finalización {contractType === "fixed-term" && "*"}</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                disabled={contractType === "month-to-month"}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rentAmount">Monto de Renta *</Label>
+              <Input
+                id="rentAmount"
+                type="number"
+                placeholder="0.00"
+                value={rentAmount}
+                onChange={(e) => setRentAmount(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="firstPaymentDate">Fecha del Primer Pago *</Label>
+              <Input
+                id="firstPaymentDate"
+                type="date"
+                value={firstPaymentDate}
+                onChange={(e) => setFirstPaymentDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="lateFee">Cargo por Mora</Label>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Agregar cargo por pagos tardíos</p>
+              </div>
+              <Switch id="lateFee" checked={hasLateFee} onCheckedChange={setHasLateFee} />
+            </div>
+
+            {hasLateFee && (
+              <div className="space-y-2">
+                <Label htmlFor="lateFeeAmount">Monto del Cargo por Mora *</Label>
+                <Input
+                  id="lateFeeAmount"
+                  type="number"
+                  placeholder="0.00"
+                  value={lateFeeAmount}
+                  onChange={(e) => setLateFeeAmount(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </WizardStepContent>
+
+      <WizardStepContent currentStep={currentStep} stepNumber={2}>
         <div className="flex items-center justify-between">
-          {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-                    currentStep >= step.number
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {currentStep > step.number ? <Check className="h-5 w-5" /> : step.number}
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Inquilinos</h2>
+          <Dialog open={isCreateTenantOpen} onOpenChange={setIsCreateTenantOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Crear Nuevo Inquilino
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Crear Nuevo Inquilino</DialogTitle>
+                <DialogDescription>Complete la información del inquilino</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tenantName">Nombre Completo *</Label>
+                  <Input
+                    id="tenantName"
+                    value={newTenant.name}
+                    onChange={(e) => setNewTenant({ ...newTenant, name: e.target.value })}
+                    placeholder="Juan Pérez"
+                  />
                 </div>
-                <span
-                  className={`mt-2 text-sm font-medium ${
-                    currentStep >= step.number ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
-                  }`}
-                >
-                  {step.title}
+                <div className="space-y-2">
+                  <Label htmlFor="tenantEmail">Correo Electrónico *</Label>
+                  <Input
+                    id="tenantEmail"
+                    type="email"
+                    value={newTenant.email}
+                    onChange={(e) => setNewTenant({ ...newTenant, email: e.target.value })}
+                    placeholder="juan@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tenantPhone">Teléfono *</Label>
+                  <Input
+                    id="tenantPhone"
+                    type="tel"
+                    value={newTenant.phone}
+                    onChange={(e) => setNewTenant({ ...newTenant, phone: e.target.value })}
+                    placeholder="+1 305 123 4567"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tenantId">Número de Identificación</Label>
+                  <Input
+                    id="tenantId"
+                    value={newTenant.idNumber}
+                    onChange={(e) => setNewTenant({ ...newTenant, idNumber: e.target.value })}
+                    placeholder="123456789"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tenantNotes">Notas</Label>
+                  <Textarea
+                    id="tenantNotes"
+                    value={newTenant.notes}
+                    onChange={(e) => setNewTenant({ ...newTenant, notes: e.target.value })}
+                    placeholder="Información adicional..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsCreateTenantOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCreateTenant}>Crear Inquilino</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="selectTenant">Seleccionar Inquilino</Label>
+            <Select onValueChange={handleAddTenant}>
+              <SelectTrigger id="selectTenant">
+                <SelectValue placeholder="Buscar inquilino existente..." />
+              </SelectTrigger>
+              <SelectContent>
+                {mockTenants
+                  .filter((tenant) => !selectedTenants.includes(tenant.id))
+                  .map((tenant) => (
+                    <SelectItem key={tenant.id} value={tenant.id}>
+                      {tenant.name} - {tenant.email}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedTenants.length > 0 && (
+            <div className="space-y-3">
+              <Label>Inquilinos Seleccionados ({selectedTenants.length})</Label>
+              <div className="space-y-2">
+                {selectedTenants.map((tenantId) => {
+                  const tenant = mockTenants.find((t) => t.id === tenantId)
+                  if (!tenant) return null
+                  return (
+                    <Card key={tenantId}>
+                      <CardContent className="flex items-center justify-between p-4">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{tenant.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.email}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.phone}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => handleRemoveTenant(tenantId)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {selectedTenants.length === 0 && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p>No hay inquilinos seleccionados</p>
+              <p className="text-sm">Seleccione un inquilino existente o cree uno nuevo</p>
+            </div>
+          )}
+        </div>
+      </WizardStepContent>
+
+      <WizardStepContent currentStep={currentStep} stepNumber={3}>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tarifas y Depósitos</h2>
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Depósito de Seguridad</h3>
+            <div className="space-y-2">
+              <Label htmlFor="securityDeposit">Monto del Depósito (Pago Único)</Label>
+              <Input
+                id="securityDeposit"
+                type="number"
+                placeholder="0.00"
+                value={securityDeposit}
+                onChange={(e) => setSecurityDeposit(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Tarifas Recurrentes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="hoaFee">Administración (HOA)</Label>
+                <Input
+                  id="hoaFee"
+                  type="number"
+                  placeholder="0.00"
+                  value={hoaFee}
+                  onChange={(e) => setHoaFee(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="petFee">Tarifa de Mascota</Label>
+                <Input
+                  id="petFee"
+                  type="number"
+                  placeholder="0.00"
+                  value={petFee}
+                  onChange={(e) => setPetFee(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="parkingFee">Estacionamiento</Label>
+                <Input
+                  id="parkingFee"
+                  type="number"
+                  placeholder="0.00"
+                  value={parkingFee}
+                  onChange={(e) => setParkingFee(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Tarifas Personalizadas</h3>
+              <Button variant="outline" size="sm" onClick={handleAddCustomFee}>
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Tarifa
+              </Button>
+            </div>
+
+            {customFees.length > 0 ? (
+              <div className="space-y-3">
+                {customFees.map((fee) => (
+                  <div key={fee.id} className="flex gap-3 items-end">
+                    <div className="flex-1 space-y-2">
+                      <Label>Nombre de la Tarifa</Label>
+                      <Input
+                        placeholder="Ej: Limpieza, Servicios..."
+                        value={fee.name}
+                        onChange={(e) => handleUpdateCustomFee(fee.id, "name", e.target.value)}
+                      />
+                    </div>
+                    <div className="w-32 space-y-2">
+                      <Label>Monto</Label>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={fee.amount}
+                        onChange={(e) => handleUpdateCustomFee(fee.id, "amount", e.target.value)}
+                      />
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveCustomFee(fee.id)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No hay tarifas personalizadas agregadas</p>
+            )}
+          </div>
+        </div>
+      </WizardStepContent>
+
+      <WizardStepContent currentStep={currentStep} stepNumber={4}>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Resumen del Contrato</h2>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detalles de Propiedad</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Propiedad:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {mockProperties.find((p) => p.id === selectedProperty)?.name || "-"}
                 </span>
               </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`h-1 flex-1 mx-4 transition-colors ${
-                    currentStep > step.number ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
-                  }`}
-                />
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Unidad:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {availableUnits.find((u) => u.id === selectedUnit)?.name || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Tipo de Contrato:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {contractType === "month-to-month"
+                    ? "Mes a Mes"
+                    : contractType === "fixed-term"
+                      ? "Plazo Fijo"
+                      : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Frecuencia de Pago:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {paymentFrequency === "weekly"
+                    ? "Semanal"
+                    : paymentFrequency === "biweekly"
+                      ? "Quincenal"
+                      : paymentFrequency === "monthly"
+                        ? "Mensual"
+                        : "Trimestral"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Fecha de Inicio:</span>
+                <span className="font-medium text-gray-900 dark:text-white">{startDate || "-"}</span>
+              </div>
+              {contractType === "fixed-term" && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Fecha de Finalización:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{endDate || "-"}</span>
+                </div>
               )}
-            </div>
-          ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Información Financiera</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Monto de Renta:</span>
+                <span className="font-medium text-gray-900 dark:text-white">${rentAmount || "0.00"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Primer Pago:</span>
+                <span className="font-medium text-gray-900 dark:text-white">{firstPaymentDate || "-"}</span>
+              </div>
+              {hasLateFee && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Cargo por Mora:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">${lateFeeAmount || "0.00"}</span>
+                </div>
+              )}
+              {securityDeposit && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Depósito de Seguridad:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">${securityDeposit}</span>
+                </div>
+              )}
+              <Separator className="my-2" />
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Tarifas Recurrentes:</p>
+                {hoaFee && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Administración (HOA):</span>
+                    <span className="text-gray-900 dark:text-white">${hoaFee}</span>
+                  </div>
+                )}
+                {petFee && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Tarifa de Mascota:</span>
+                    <span className="text-gray-900 dark:text-white">${petFee}</span>
+                  </div>
+                )}
+                {parkingFee && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Estacionamiento:</span>
+                    <span className="text-gray-900 dark:text-white">${parkingFee}</span>
+                  </div>
+                )}
+                {customFees.map(
+                  (fee) =>
+                    fee.name &&
+                    fee.amount && (
+                      <div key={fee.id} className="flex justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">{fee.name}:</span>
+                        <span className="text-gray-900 dark:text-white">${fee.amount}</span>
+                      </div>
+                    ),
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Inquilinos ({selectedTenants.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedTenants.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedTenants.map((tenantId) => {
+                    const tenant = mockTenants.find((t) => t.id === tenantId)
+                    if (!tenant) return null
+                    return (
+                      <div
+                        key={tenantId}
+                        className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                          <span className="text-blue-600 dark:text-blue-300 font-semibold">
+                            {tenant.name.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{tenant.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.email}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No hay inquilinos seleccionados</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      </div>
-
-      {/* Step Content */}
-      <Card>
-        <CardContent className="pt-6">
-          {/* Step 1: Property & Contract Details */}
-          {currentStep === 1 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                  Detalles de Propiedad y Contrato
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="property">Propiedad *</Label>
-                    <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                      <SelectTrigger id="property">
-                        <SelectValue placeholder="Seleccionar propiedad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockProperties.map((property) => (
-                          <SelectItem key={property.id} value={property.id}>
-                            {property.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="unit">Unidad *</Label>
-                    <Select value={selectedUnit} onValueChange={setSelectedUnit} disabled={!selectedProperty}>
-                      <SelectTrigger id="unit">
-                        <SelectValue placeholder="Seleccionar unidad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableUnits.map((unit) => (
-                          <SelectItem key={unit.id} value={unit.id}>
-                            {unit.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contractType">Tipo de Contrato *</Label>
-                    <Select value={contractType} onValueChange={setContractType}>
-                      <SelectTrigger id="contractType">
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="month-to-month">Mes a Mes</SelectItem>
-                        <SelectItem value="fixed-term">Plazo Fijo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="paymentFrequency">Frecuencia de Pago *</Label>
-                    <Select value={paymentFrequency} onValueChange={setPaymentFrequency}>
-                      <SelectTrigger id="paymentFrequency">
-                        <SelectValue placeholder="Seleccionar frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Semanal</SelectItem>
-                        <SelectItem value="biweekly">Quincenal</SelectItem>
-                        <SelectItem value="monthly">Mensual</SelectItem>
-                        <SelectItem value="quarterly">Trimestral</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Fecha de Inicio *</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">Fecha de Finalización {contractType === "fixed-term" && "*"}</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      disabled={contractType === "month-to-month"}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="rentAmount">Monto de Renta *</Label>
-                    <Input
-                      id="rentAmount"
-                      type="number"
-                      placeholder="0.00"
-                      value={rentAmount}
-                      onChange={(e) => setRentAmount(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="firstPaymentDate">Fecha del Primer Pago *</Label>
-                    <Input
-                      id="firstPaymentDate"
-                      type="date"
-                      value={firstPaymentDate}
-                      onChange={(e) => setFirstPaymentDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <Separator className="my-6" />
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="lateFee">Cargo por Mora</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Agregar cargo por pagos tardíos</p>
-                    </div>
-                    <Switch id="lateFee" checked={hasLateFee} onCheckedChange={setHasLateFee} />
-                  </div>
-
-                  {hasLateFee && (
-                    <div className="space-y-2">
-                      <Label htmlFor="lateFeeAmount">Monto del Cargo por Mora *</Label>
-                      <Input
-                        id="lateFeeAmount"
-                        type="number"
-                        placeholder="0.00"
-                        value={lateFeeAmount}
-                        onChange={(e) => setLateFeeAmount(e.target.value)}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Tenants */}
-          {currentStep === 2 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Inquilinos</h2>
-                <Dialog open={isCreateTenantOpen} onOpenChange={setIsCreateTenantOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crear Nuevo Inquilino
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Crear Nuevo Inquilino</DialogTitle>
-                      <DialogDescription>Complete la información del inquilino</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantName">Nombre Completo *</Label>
-                        <Input
-                          id="tenantName"
-                          value={newTenant.name}
-                          onChange={(e) => setNewTenant({ ...newTenant, name: e.target.value })}
-                          placeholder="Juan Pérez"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantEmail">Correo Electrónico *</Label>
-                        <Input
-                          id="tenantEmail"
-                          type="email"
-                          value={newTenant.email}
-                          onChange={(e) => setNewTenant({ ...newTenant, email: e.target.value })}
-                          placeholder="juan@email.com"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantPhone">Teléfono *</Label>
-                        <Input
-                          id="tenantPhone"
-                          type="tel"
-                          value={newTenant.phone}
-                          onChange={(e) => setNewTenant({ ...newTenant, phone: e.target.value })}
-                          placeholder="+1 305 123 4567"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantId">Número de Identificación</Label>
-                        <Input
-                          id="tenantId"
-                          value={newTenant.idNumber}
-                          onChange={(e) => setNewTenant({ ...newTenant, idNumber: e.target.value })}
-                          placeholder="123456789"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantNotes">Notas</Label>
-                        <Textarea
-                          id="tenantNotes"
-                          value={newTenant.notes}
-                          onChange={(e) => setNewTenant({ ...newTenant, notes: e.target.value })}
-                          placeholder="Información adicional..."
-                          rows={3}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-3">
-                      <Button variant="outline" onClick={() => setIsCreateTenantOpen(false)}>
-                        Cancelar
-                      </Button>
-                      <Button onClick={handleCreateTenant}>Crear Inquilino</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="selectTenant">Seleccionar Inquilino</Label>
-                  <Select onValueChange={handleAddTenant}>
-                    <SelectTrigger id="selectTenant">
-                      <SelectValue placeholder="Buscar inquilino existente..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockTenants
-                        .filter((tenant) => !selectedTenants.includes(tenant.id))
-                        .map((tenant) => (
-                          <SelectItem key={tenant.id} value={tenant.id}>
-                            {tenant.name} - {tenant.email}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedTenants.length > 0 && (
-                  <div className="space-y-3">
-                    <Label>Inquilinos Seleccionados ({selectedTenants.length})</Label>
-                    <div className="space-y-2">
-                      {selectedTenants.map((tenantId) => {
-                        const tenant = mockTenants.find((t) => t.id === tenantId)
-                        if (!tenant) return null
-                        return (
-                          <Card key={tenantId}>
-                            <CardContent className="flex items-center justify-between p-4">
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">{tenant.name}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.email}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.phone}</p>
-                              </div>
-                              <Button variant="ghost" size="sm" onClick={() => handleRemoveTenant(tenantId)}>
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {selectedTenants.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <p>No hay inquilinos seleccionados</p>
-                    <p className="text-sm">Seleccione un inquilino existente o cree uno nuevo</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Fees and Deposits */}
-          {currentStep === 3 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tarifas y Depósitos</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Depósito de Seguridad</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="securityDeposit">Monto del Depósito (Pago Único)</Label>
-                    <Input
-                      id="securityDeposit"
-                      type="number"
-                      placeholder="0.00"
-                      value={securityDeposit}
-                      onChange={(e) => setSecurityDeposit(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Tarifas Recurrentes</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="hoaFee">Administración (HOA)</Label>
-                      <Input
-                        id="hoaFee"
-                        type="number"
-                        placeholder="0.00"
-                        value={hoaFee}
-                        onChange={(e) => setHoaFee(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="petFee">Tarifa de Mascota</Label>
-                      <Input
-                        id="petFee"
-                        type="number"
-                        placeholder="0.00"
-                        value={petFee}
-                        onChange={(e) => setPetFee(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="parkingFee">Estacionamiento</Label>
-                      <Input
-                        id="parkingFee"
-                        type="number"
-                        placeholder="0.00"
-                        value={parkingFee}
-                        onChange={(e) => setParkingFee(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Tarifas Personalizadas</h3>
-                    <Button variant="outline" size="sm" onClick={handleAddCustomFee}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Agregar Tarifa
-                    </Button>
-                  </div>
-
-                  {customFees.length > 0 ? (
-                    <div className="space-y-3">
-                      {customFees.map((fee) => (
-                        <div key={fee.id} className="flex gap-3 items-end">
-                          <div className="flex-1 space-y-2">
-                            <Label>Nombre de la Tarifa</Label>
-                            <Input
-                              placeholder="Ej: Limpieza, Servicios..."
-                              value={fee.name}
-                              onChange={(e) => handleUpdateCustomFee(fee.id, "name", e.target.value)}
-                            />
-                          </div>
-                          <div className="w-32 space-y-2">
-                            <Label>Monto</Label>
-                            <Input
-                              type="number"
-                              placeholder="0.00"
-                              value={fee.amount}
-                              onChange={(e) => handleUpdateCustomFee(fee.id, "amount", e.target.value)}
-                            />
-                          </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveCustomFee(fee.id)}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No hay tarifas personalizadas agregadas</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Summary */}
-          {currentStep === 4 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Resumen del Contrato</h2>
-
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Detalles de Propiedad</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Propiedad:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {mockProperties.find((p) => p.id === selectedProperty)?.name || "-"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Unidad:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {availableUnits.find((u) => u.id === selectedUnit)?.name || "-"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Tipo de Contrato:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {contractType === "month-to-month"
-                          ? "Mes a Mes"
-                          : contractType === "fixed-term"
-                            ? "Plazo Fijo"
-                            : "-"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Frecuencia de Pago:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {paymentFrequency === "weekly"
-                          ? "Semanal"
-                          : paymentFrequency === "biweekly"
-                            ? "Quincenal"
-                            : paymentFrequency === "monthly"
-                              ? "Mensual"
-                              : "Trimestral"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Fecha de Inicio:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{startDate || "-"}</span>
-                    </div>
-                    {contractType === "fixed-term" && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Fecha de Finalización:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{endDate || "-"}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Información Financiera</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Monto de Renta:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">${rentAmount || "0.00"}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Primer Pago:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{firstPaymentDate || "-"}</span>
-                    </div>
-                    {hasLateFee && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Cargo por Mora:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">${lateFeeAmount || "0.00"}</span>
-                      </div>
-                    )}
-                    {securityDeposit && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Depósito de Seguridad:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">${securityDeposit}</span>
-                      </div>
-                    )}
-                    <Separator className="my-2" />
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">Tarifas Recurrentes:</p>
-                      {hoaFee && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Administración (HOA):</span>
-                          <span className="text-gray-900 dark:text-white">${hoaFee}</span>
-                        </div>
-                      )}
-                      {petFee && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Tarifa de Mascota:</span>
-                          <span className="text-gray-900 dark:text-white">${petFee}</span>
-                        </div>
-                      )}
-                      {parkingFee && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Estacionamiento:</span>
-                          <span className="text-gray-900 dark:text-white">${parkingFee}</span>
-                        </div>
-                      )}
-                      {customFees.map(
-                        (fee) =>
-                          fee.name &&
-                          fee.amount && (
-                            <div key={fee.id} className="flex justify-between text-sm">
-                              <span className="text-gray-600 dark:text-gray-400">{fee.name}:</span>
-                              <span className="text-gray-900 dark:text-white">${fee.amount}</span>
-                            </div>
-                          ),
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Inquilinos ({selectedTenants.length})</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedTenants.length > 0 ? (
-                      <div className="space-y-3">
-                        {selectedTenants.map((tenantId) => {
-                          const tenant = mockTenants.find((t) => t.id === tenantId)
-                          if (!tenant) return null
-                          return (
-                            <div
-                              key={tenantId}
-                              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                            >
-                              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                                <span className="text-blue-600 dark:text-blue-300 font-semibold">
-                                  {tenant.name.charAt(0)}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">{tenant.name}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{tenant.email}</p>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No hay inquilinos seleccionados</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Navigation Buttons */}
-      <div className="flex justify-between mt-6">
-        <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Anterior
-        </Button>
-
-        {currentStep < 4 ? (
-          <Button onClick={handleNext}>
-            Siguiente
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
-        ) : (
-          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700">
-            <Check className="h-4 w-4 mr-2" />
-            Crear Contrato
-          </Button>
-        )}
-      </div>
-    </div>
+      </WizardStepContent>
+    </Wizard>
   )
 }
