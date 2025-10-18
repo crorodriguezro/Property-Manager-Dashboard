@@ -107,7 +107,7 @@ export default function Sidebar() {
                   <NavItem href="/inmuebles" icon={Building2}>
                     Inmuebles
                   </NavItem>
-                  <NavItem href="/contratos/nuevo" icon={FileText}>
+                  <NavItem href="/contratos" icon={FileText}>
                     Contratos
                   </NavItem>
                   <NavItem href="#" icon={UserCircle}>
