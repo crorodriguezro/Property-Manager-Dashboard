@@ -7,6 +7,8 @@ This is a Next.js 15 financial dashboard application featuring account managemen
 ### October 18, 2025
 - ✅ Created reusable Wizard component for multi-step forms
 - ✅ Refactored CreateLeaseWizard to use new Wizard component
+- ✅ Created CreatePropertyWizard for adding properties with inline units editing
+- ✅ Added new property creation page at `/inmuebles/nuevo`
 - ✅ Improved code organization and separation of concerns
 
 ### October 17, 2025
@@ -46,6 +48,7 @@ This is a Next.js 15 financial dashboard application featuring account managemen
 - Account management with balance tracking
 - Transaction history and categorization
 - Event planning and scheduling
+- Property management with multi-step creation wizard
 - Lease contract creation with multi-step wizard
 - Dark/light theme support
 - Responsive dashboard layout
