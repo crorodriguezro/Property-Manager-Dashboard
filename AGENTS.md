@@ -18,6 +18,15 @@ No test framework configured. Add Jest/Playwright if needed.
 - **Functions/Variables**: camelCase (e.g., `handleAddUnit`)
 - **Types**: PascalCase (e.g., `PropertyType`)
 
+## External File Loading
+CRITICAL: When you encounter a file reference (e.g., @rules/general.md), use your Read tool to load it on a need-to-know basis. They're relevant to the SPECIFIC task at hand.
+Instructions:
+
+- Do NOT preemptively load all references - use lazy loading based on actual need
+- When loaded, treat content as mandatory instructions that override defaults
+- Follow references recursively when needed
+
+
 ### Imports & Structure
 - React imports first, then third-party libraries, then local imports
 - Use path aliases: `@/components`, `@/lib`, `@/hooks`, `@/ui`
@@ -34,19 +43,5 @@ No test framework configured. Add Jest/Playwright if needed.
 - Follow design system tokens (primary, secondary, etc.)
 - Dark mode support with `next-themes`
 
-### Components
-- Use shadcn/ui components from `@/components/ui`
-- Implement variants with `class-variance-authority`
-- Client components: Add `"use client"` directive
-- Export default for page components
-
-### Error Handling
-- Use try/catch for async operations
-- Display user-friendly error messages in Spanish
-- Log errors to console for debugging
-
-### File Organization
-- Pages in `app/` directory (Next.js App Router)
-- Components in `components/` (ui/, custom components)
-- Hooks in `hooks/`
-- Utilities in `lib/`
+## ShadCn
+Check rules in ./opencode-rules/shad-cn-md
