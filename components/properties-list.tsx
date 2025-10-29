@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, SlidersHorizontal, Building2, Home } from "lucide-react"
+import { Search, SlidersHorizontal, Building2, Home, Plus } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -100,13 +100,20 @@ export default function PropertiesList() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Inmuebles</h1>
+        <Link
+          href="/inmuebles/nuevo"
+          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="h-4 w-4"/>
+          Agregar Inmueble
+        </Link>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"/>
           <Input
             type="text"
             placeholder="Buscar"
@@ -116,7 +123,7 @@ export default function PropertiesList() {
           />
         </div>
         <Button variant="outline" size="icon" className="flex-shrink-0 bg-transparent">
-          <SlidersHorizontal className="h-4 w-4" />
+          <SlidersHorizontal className="h-4 w-4"/>
         </Button>
       </div>
 
@@ -124,67 +131,68 @@ export default function PropertiesList() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b border-gray-200 dark:border-[#1F1F23]">
-              <tr>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Inmueble</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Tipo</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Unidades</th>
-              </tr>
+            <tr>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Inmueble</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Tipo</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Unidades</th>
+            </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-[#1F1F23]">
-              {filteredProperties.map((property) => (
-                <tr
-                  key={property.id}
-                  className="hover:bg-gray-50 dark:hover:bg-[#1F1F23] transition-colors cursor-pointer"
-                >
-                  <td className="py-4 px-4">
-                    <Link href={`/inmuebles/${property.id}`} className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#2F2F33] flex items-center justify-center flex-shrink-0">
-                        {property.image ? (
-                          <Image
-                            src={property.image || "/placeholder.svg"}
-                            alt={property.name}
-                            width={48}
-                            height={48}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <Building2 className="h-6 w-6 text-gray-400" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{property.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{property.address}</div>
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <Home className="h-4 w-4 text-gray-400" />
-                      {property.type}
+            {filteredProperties.map((property) => (
+              <tr
+                key={property.id}
+                className="hover:bg-gray-50 dark:hover:bg-[#1F1F23] transition-colors cursor-pointer"
+              >
+                <td className="py-4 px-4">
+                  <Link href={`/inmuebles/${property.id}`} className="flex items-center gap-3">
+                    <div
+                      className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#2F2F33] flex items-center justify-center flex-shrink-0">
+                      {property.image ? (
+                        <Image
+                          src={property.image || "/placeholder.svg"}
+                          alt={property.name}
+                          width={48}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <Building2 className="h-6 w-6 text-gray-400"/>
+                      )}
                     </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-0"
-                        >
-                          {property.activeLeases} Activos
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                        <Home className="h-4 w-4 text-gray-400" />
-                        {property.occupiedUnits} Ocupados
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                        <Building2 className="h-4 w-4 text-gray-400" />
-                        {property.totalUnits} {property.totalUnits === 1 ? "Unidad" : "Unidades"}
-                      </div>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">{property.name}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{property.address}</div>
                     </div>
-                  </td>
-                </tr>
-              ))}
+                  </Link>
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <Home className="h-4 w-4 text-gray-400"/>
+                    {property.type}
+                  </div>
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-0"
+                      >
+                        {property.activeLeases} Activos
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <Home className="h-4 w-4 text-gray-400"/>
+                      {property.occupiedUnits} Ocupados
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <Building2 className="h-4 w-4 text-gray-400"/>
+                      {property.totalUnits} {property.totalUnits === 1 ? "Unidad" : "Unidades"}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>

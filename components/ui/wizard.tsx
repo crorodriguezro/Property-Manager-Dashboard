@@ -149,7 +149,7 @@ export function Wizard({
     </>
   )
 
-  return <div className="p-6 max-w-5xl mx-auto">{content}</div>
+  return <div className="p-6 max-w-7xl mx-auto">{content}</div>
 }
 
 export interface WizardStepContentProps {

@@ -191,8 +191,8 @@ export default function CreatePropertyWizard() {
               <div className="col-span-1">Habitaciones</div>
               <div className="col-span-1">Baños</div>
               <div className="col-span-2">Tamaño (m²)</div>
-              <div className="col-span-3">Nota</div>
               <div className="col-span-2">Renta Mercado</div>
+              <div className="col-span-3">Nota</div>
               <div className="col-span-1"></div>
             </div>
 
@@ -241,16 +241,6 @@ export default function CreatePropertyWizard() {
                     />
                   </div>
 
-                  <div className="col-span-3">
-                    <Textarea
-                      value={unit.note}
-                      onChange={(e) => handleUpdateUnit(unit.id, "note", e.target.value)}
-                      placeholder="Notas opcionales"
-                      rows={1}
-                      className="resize-none"
-                    />
-                  </div>
-
                   <div className="col-span-2">
                     <Input
                       type="number"
@@ -262,6 +252,16 @@ export default function CreatePropertyWizard() {
                     />
                   </div>
 
+                  <div className="col-span-3">
+                    <Textarea
+                      value={unit.note}
+                      onChange={(e) => handleUpdateUnit(unit.id, "note", e.target.value)}
+                      placeholder="Notas opcionales"
+                      rows={1}
+                      className="resize-none"
+                    />
+                  </div>
+
                   <div className="col-span-1 flex justify-center">
                     <Button
                       variant="ghost"
@@ -269,7 +269,7 @@ export default function CreatePropertyWizard() {
                       onClick={() => handleRemoveUnit(unit.id)}
                       disabled={units.length === 1}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4"/>
                     </Button>
                   </div>
                 </div>
