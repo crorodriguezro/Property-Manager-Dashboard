@@ -7,8 +7,8 @@
     2. Filter Dropdown: Select
     3. Filter Dropdown: Select
     4. Sort Dropdown: Select
-3. Properties List
-    1. Property Card: Row
+3. Properties List Table
+    1. Property Row:
         1. Property Image: img
         2. Property Name and below Address: p
         4. Property Type Badge: Badge

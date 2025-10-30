@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Wizard, WizardStepContent } from "@/components/ui/wizard"
-import { Plus, X } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Plus, X, Upload } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import { Card } from "@/components/ui/card"
 
 type PropertyType = "unifamiliar" | "multifamiliar" | "comercial"
 
@@ -21,16 +23,39 @@ type Unit = {
   marketRent: string
 }
 
+const AMENITIES = ["Piscina", "Gym", "Lavandería", "Ascensor", "Sistema de seguridad", "Amigable con mascotas", "Zona verde", "Estacionamiento techado"]
+
 export default function CreatePropertyWizard() {
   const [currentStep, setCurrentStep] = useState(1)
 
+  // Basic Information
+  const [propertyName, setPropertyName] = useState("")
   const [propertyType, setPropertyType] = useState<PropertyType | "">("")
   const [address1, setAddress1] = useState("")
   const [address2, setAddress2] = useState("")
   const [city, setCity] = useState("")
   const [state, setState] = useState("")
+  const [postalCode, setPostalCode] = useState("")
   const [country, setCountry] = useState("")
 
+  // Property Details
+  const [yearBuilt, setYearBuilt] = useState("")
+  const [squareFeet, setSquareFeet] = useState("")
+  const [lotSize, setLotSize] = useState("")
+  const [parkingSpaces, setParkingSpaces] = useState("")
+  const [numFloors, setNumFloors] = useState("")
+
+  // Amenities
+  const [amenities, setAmenities] = useState<string[]>([])
+
+  // Owner Information
+  const [ownerName, setOwnerName] = useState("")
+  const [ownershipPercentage, setOwnershipPercentage] = useState("100")
+
+  // Description
+  const [description, setDescription] = useState("")
+
+  // Units
   const [units, setUnits] = useState<Unit[]>([
     {
       id: "1",
@@ -68,14 +93,39 @@ export default function CreatePropertyWizard() {
     setUnits(units.map((unit) => (unit.id === id ? { ...unit, [field]: value } : unit)))
   }
 
+  const handleAmenityToggle = (amenity: string) => {
+    setAmenities(
+      amenities.includes(amenity)
+        ? amenities.filter((a) => a !== amenity)
+        : [...amenities, amenity]
+    )
+  }
+
   const handleSubmit = () => {
     const propertyData = {
+      propertyName,
       propertyType,
-      address1,
-      address2,
-      city,
-      state,
-      country,
+      address: {
+        address1,
+        address2,
+        city,
+        state,
+        postalCode,
+        country,
+      },
+      details: {
+        yearBuilt,
+        squareFeet,
+        lotSize,
+        parkingSpaces,
+        numFloors,
+      },
+      amenities,
+      owner: {
+        name: ownerName,
+        ownership: ownershipPercentage,
+      },
+      description,
       units,
     }
     console.log("Creating property:", propertyData)
@@ -83,8 +133,11 @@ export default function CreatePropertyWizard() {
   }
 
   const steps = [
-    { number: 1, title: "Información de Propiedad" },
-    { number: 2, title: "Unidades" },
+    { number: 1, title: "Información Básica" },
+    { number: 2, title: "Detalles de Propiedad" },
+    { number: 3, title: "Amenidades" },
+    { number: 4, title: "Propietario" },
+    { number: 5, title: "Unidades" },
   ]
 
   return (
@@ -94,96 +147,259 @@ export default function CreatePropertyWizard() {
       onStepChange={setCurrentStep}
       onComplete={handleSubmit}
       title="Agregar Nueva Propiedad"
-      subtitle="Complete los siguientes pasos para registrar una propiedad"
+      subtitle={`Paso ${currentStep} de ${steps.length}: ${steps[currentStep - 1]?.title || ""}`}
       nextButtonText="Siguiente"
       previousButtonText="Anterior"
       submitButtonText="Crear Propiedad"
     >
-      <WizardStepContent currentStep={currentStep} stepNumber={1}>
-        <div>
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Información de Propiedad
-          </h2>
+       {/* Step 1: Basic Information */}
+       <WizardStepContent currentStep={currentStep} stepNumber={1}>
+         <div>
+           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+             Información Básica
+           </h2>
 
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
-              <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
-                <SelectTrigger id="propertyType">
-                  <SelectValue placeholder="Seleccionar tipo de propiedad" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
-                  <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
-                  <SelectItem value="comercial">Comercial</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+           <div className="space-y-6">
+             <div className="space-y-2">
+               <Label htmlFor="propertyName">Nombre de la Propiedad *</Label>
+               <Input
+                 id="propertyName"
+                 value={propertyName}
+                 onChange={(e) => setPropertyName(e.target.value)}
+                 placeholder="Ej: Villa Sunset, Edificio Central"
+               />
+             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address1">Dirección 1 *</Label>
-              <Input
-                id="address1"
-                value={address1}
-                onChange={(e) => setAddress1(e.target.value)}
-                placeholder="Calle y número"
-              />
-            </div>
+             <div className="space-y-2">
+               <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
+               <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
+                 <SelectTrigger id="propertyType">
+                   <SelectValue placeholder="Seleccionar tipo de propiedad" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
+                   <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
+                   <SelectItem value="comercial">Comercial</SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address2">Dirección 2</Label>
-              <Input
-                id="address2"
-                value={address2}
-                onChange={(e) => setAddress2(e.target.value)}
-                placeholder="Apartamento, suite, piso (opcional)"
-              />
-            </div>
+             <div className="space-y-2">
+               <Label htmlFor="address1">Dirección *</Label>
+               <Input
+                 id="address1"
+                 value={address1}
+                 onChange={(e) => setAddress1(e.target.value)}
+                 placeholder="Calle y número"
+               />
+             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="city">Ciudad *</Label>
-                <Input
-                  id="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Ciudad"
-                />
-              </div>
+             <div className="space-y-2">
+               <Label htmlFor="address2">Apartamento/Piso/Suite (Opcional)</Label>
+               <Input
+                 id="address2"
+                 value={address2}
+                 onChange={(e) => setAddress2(e.target.value)}
+                 placeholder="Apartamento, suite, piso"
+               />
+             </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="state">Estado/Departamento *</Label>
-                <Input
-                  id="state"
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  placeholder="Estado o Departamento"
-                />
-              </div>
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <Label htmlFor="city">Ciudad *</Label>
+                 <Input
+                   id="city"
+                   value={city}
+                   onChange={(e) => setCity(e.target.value)}
+                   placeholder="Ciudad"
+                 />
+               </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="country">País *</Label>
-              <Input
-                id="country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder="País"
-              />
-            </div>
-          </div>
-        </div>
-      </WizardStepContent>
+               <div className="space-y-2">
+                 <Label htmlFor="state">Estado/Departamento *</Label>
+                 <Input
+                   id="state"
+                   value={state}
+                   onChange={(e) => setState(e.target.value)}
+                   placeholder="Estado o Departamento"
+                 />
+               </div>
+             </div>
 
-      <WizardStepContent currentStep={currentStep} stepNumber={2}>
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Unidades</h2>
-            <Button variant="outline" size="sm" onClick={handleAddUnit}>
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Otra Unidad
-            </Button>
-          </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <Label htmlFor="postalCode">Código Postal</Label>
+                 <Input
+                   id="postalCode"
+                   value={postalCode}
+                   onChange={(e) => setPostalCode(e.target.value)}
+                   placeholder="Código postal"
+                 />
+               </div>
+
+               <div className="space-y-2">
+                 <Label htmlFor="country">País *</Label>
+                 <Input
+                   id="country"
+                   value={country}
+                   onChange={(e) => setCountry(e.target.value)}
+                   placeholder="País"
+                 />
+               </div>
+             </div>
+           </div>
+         </div>
+       </WizardStepContent>
+
+       {/* Step 2: Property Details */}
+       <WizardStepContent currentStep={currentStep} stepNumber={2}>
+         <div>
+           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+             Detalles de la Propiedad
+           </h2>
+
+           <div className="space-y-6">
+             <div className="space-y-2">
+               <Label htmlFor="yearBuilt">Año de Construcción</Label>
+               <Input
+                 id="yearBuilt"
+                 type="number"
+                 value={yearBuilt}
+                 onChange={(e) => setYearBuilt(e.target.value)}
+                 placeholder="2020"
+               />
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <Label htmlFor="squareFeet">Área Total (ft²)</Label>
+                 <Input
+                   id="squareFeet"
+                   type="number"
+                   value={squareFeet}
+                   onChange={(e) => setSquareFeet(e.target.value)}
+                   placeholder="0"
+                 />
+               </div>
+
+               <div className="space-y-2">
+                 <Label htmlFor="lotSize">Tamaño del Terreno</Label>
+                 <Input
+                   id="lotSize"
+                   type="number"
+                   value={lotSize}
+                   onChange={(e) => setLotSize(e.target.value)}
+                   placeholder="0"
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <Label htmlFor="parkingSpaces">Espacios de Estacionamiento</Label>
+                 <Input
+                   id="parkingSpaces"
+                   type="number"
+                   value={parkingSpaces}
+                   onChange={(e) => setParkingSpaces(e.target.value)}
+                   placeholder="0"
+                 />
+               </div>
+
+               <div className="space-y-2">
+                 <Label htmlFor="numFloors">Número de Pisos</Label>
+                 <Input
+                   id="numFloors"
+                   type="number"
+                   value={numFloors}
+                   onChange={(e) => setNumFloors(e.target.value)}
+                   placeholder="0"
+                 />
+               </div>
+             </div>
+           </div>
+         </div>
+       </WizardStepContent>
+
+       {/* Step 3: Amenities */}
+       <WizardStepContent currentStep={currentStep} stepNumber={3}>
+         <div>
+           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+             Amenidades
+           </h2>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             {AMENITIES.map((amenity) => (
+               <Card key={amenity} className="p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                 <Checkbox
+                   id={amenity}
+                   checked={amenities.includes(amenity)}
+                   onCheckedChange={() => handleAmenityToggle(amenity)}
+                 />
+                 <Label htmlFor={amenity} className="cursor-pointer font-medium text-gray-900 dark:text-white">
+                   {amenity}
+                 </Label>
+               </Card>
+             ))}
+           </div>
+         </div>
+       </WizardStepContent>
+
+       {/* Step 4: Owner Information */}
+       <WizardStepContent currentStep={currentStep} stepNumber={4}>
+         <div>
+           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+             Información del Propietario
+           </h2>
+
+           <div className="space-y-6">
+             <div className="space-y-2">
+               <Label htmlFor="ownerName">Nombre del Propietario *</Label>
+               <Input
+                 id="ownerName"
+                 value={ownerName}
+                 onChange={(e) => setOwnerName(e.target.value)}
+                 placeholder="Nombre completo"
+               />
+             </div>
+
+             <div className="space-y-2">
+               <Label htmlFor="ownershipPercentage">Porcentaje de Propiedad (%)</Label>
+               <Input
+                 id="ownershipPercentage"
+                 type="number"
+                 value={ownershipPercentage}
+                 onChange={(e) => setOwnershipPercentage(e.target.value)}
+                 min="0"
+                 max="100"
+                 placeholder="100"
+               />
+             </div>
+
+             <div className="space-y-2">
+               <Label htmlFor="description">Descripción de la Propiedad</Label>
+               <Textarea
+                 id="description"
+                 value={description}
+                 onChange={(e) => setDescription(e.target.value)}
+                 placeholder="Describe la propiedad, condiciones, características especiales..."
+                 rows={4}
+               />
+             </div>
+           </div>
+         </div>
+       </WizardStepContent>
+
+       {/* Step 5: Units */}
+       <WizardStepContent currentStep={currentStep} stepNumber={5}>
+         <div>
+           <div className="flex items-center justify-between mb-4">
+             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Unidades</h2>
+             <Button variant="outline" size="sm" onClick={handleAddUnit}>
+               <Plus className="h-4 w-4 mr-2" />
+               Agregar Otra Unidad
+             </Button>
+           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-12 gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 px-3">

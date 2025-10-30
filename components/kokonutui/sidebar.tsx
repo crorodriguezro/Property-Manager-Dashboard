@@ -78,14 +78,14 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-3">
               <Image
-                src="https://kokonutui.com/logo.svg"
+                src="placeholder-logo.png"
                 alt="Acme"
                 width={32}
                 height={32}
                 className="flex-shrink-0 hidden dark:block"
               />
               <Image
-                src="https://kokonutui.com/logo-black.svg"
+                src="placeholder-logo.png"
                 alt="Acme"
                 width={32}
                 height={32}
