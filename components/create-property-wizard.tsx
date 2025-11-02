@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, X } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
@@ -30,8 +29,6 @@ const AMENITIES = ["Piscina", "Gym", "Lavandería", "Ascensor", "Sistema de segu
 const WIZARD_STEPS = [
   { id: "basic", title: "Información Básica", description: "Nombre y dirección" },
   { id: "details", title: "Detalles de Propiedad", description: "Características" },
-  { id: "amenities", title: "Amenidades", description: "Servicios disponibles" },
-  { id: "owner", title: "Propietario", description: "Información del dueño" },
   { id: "units", title: "Unidades", description: "Configurar unidades" },
 ]
 
@@ -50,17 +47,9 @@ export default function CreatePropertyWizard() {
 
   // Property Details
   const [yearBuilt, setYearBuilt] = useState("")
-  const [squareFeet, setSquareFeet] = useState("")
+  const [squareMeters, setSquareMeters] = useState("")
   const [lotSize, setLotSize] = useState("")
   const [parkingSpaces, setParkingSpaces] = useState("")
-  const [numFloors, setNumFloors] = useState("")
-
-  // Amenities
-  const [amenities, setAmenities] = useState<string[]>([])
-
-  // Owner Information
-  const [ownerName, setOwnerName] = useState("")
-  const [ownershipPercentage, setOwnershipPercentage] = useState("100")
 
   // Description
   const [description, setDescription] = useState("")
@@ -103,14 +92,6 @@ export default function CreatePropertyWizard() {
     setUnits(units.map((unit) => (unit.id === id ? { ...unit, [field]: value } : unit)))
   }
 
-  const handleAmenityToggle = (amenity: string) => {
-    setAmenities(
-      amenities.includes(amenity)
-        ? amenities.filter((a) => a !== amenity)
-        : [...amenities, amenity]
-    )
-  }
-
   const handleNext = () => {
     if (currentStep < WIZARD_STEPS.length - 1) {
       setCurrentStep(currentStep + 1)
@@ -137,15 +118,9 @@ export default function CreatePropertyWizard() {
       },
       details: {
         yearBuilt,
-        squareFeet,
+        squareFeet: squareMeters,
         lotSize,
         parkingSpaces,
-        numFloors,
-      },
-      amenities,
-      owner: {
-        name: ownerName,
-        ownership: ownershipPercentage,
       },
       description,
       units,
@@ -155,7 +130,7 @@ export default function CreatePropertyWizard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Page Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
@@ -179,111 +154,113 @@ export default function CreatePropertyWizard() {
       >
         {/* Step 1: Basic Information */}
         <WizardStep isActive={currentStep === 0}>
-         <div>
-           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+         <Card className="p-6">
+           <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
              Información Básica
            </h2>
 
-           <div className="space-y-6">
-             <div className="space-y-2">
-               <Label htmlFor="propertyName">Nombre de la Propiedad *</Label>
-               <Input
-                 id="propertyName"
-                 value={propertyName}
-                 onChange={(e) => setPropertyName(e.target.value)}
-                 placeholder="Ej: Villa Sunset, Edificio Central"
-               />
-             </div>
-
-             <div className="space-y-2">
-               <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
-               <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
-                 <SelectTrigger id="propertyType">
-                   <SelectValue placeholder="Seleccionar tipo de propiedad" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
-                   <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
-                   <SelectItem value="comercial">Comercial</SelectItem>
-                 </SelectContent>
-               </Select>
-             </div>
-
-             <div className="space-y-2">
-               <Label htmlFor="address1">Dirección *</Label>
-               <Input
-                 id="address1"
-                 value={address1}
-                 onChange={(e) => setAddress1(e.target.value)}
-                 placeholder="Calle y número"
-               />
-             </div>
-
-             <div className="space-y-2">
-               <Label htmlFor="address2">Apartamento/Piso/Suite (Opcional)</Label>
-               <Input
-                 id="address2"
-                 value={address2}
-                 onChange={(e) => setAddress2(e.target.value)}
-                 placeholder="Apartamento, suite, piso"
-               />
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="space-y-5">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div className="space-y-2">
-                 <Label htmlFor="city">Ciudad *</Label>
+                 <Label htmlFor="propertyName">Nombre de la Propiedad *</Label>
                  <Input
-                   id="city"
-                   value={city}
-                   onChange={(e) => setCity(e.target.value)}
-                   placeholder="Ciudad"
+                   id="propertyName"
+                   value={propertyName}
+                   onChange={(e) => setPropertyName(e.target.value)}
+                   placeholder="Ej: Villa Sunset, Edificio Central"
                  />
                </div>
 
                <div className="space-y-2">
-                 <Label htmlFor="state">Estado/Departamento *</Label>
-                 <Input
-                   id="state"
-                   value={state}
-                   onChange={(e) => setState(e.target.value)}
-                   placeholder="Estado o Departamento"
-                 />
+                 <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
+                 <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
+                   <SelectTrigger  className="w-full"  id="propertyType">
+                     <SelectValue placeholder="Seleccionar tipo de propiedad"/>
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
+                     <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
+                     <SelectItem value="comercial">Comercial</SelectItem>
+                   </SelectContent>
+                 </Select>
                </div>
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <div className="space-y-2">
-                 <Label htmlFor="postalCode">Código Postal</Label>
+                 <Label htmlFor="address1">Dirección *</Label>
                  <Input
-                   id="postalCode"
-                   value={postalCode}
-                   onChange={(e) => setPostalCode(e.target.value)}
-                   placeholder="Código postal"
+                   id="address1"
+                   value={address1}
+                   onChange={(e) => setAddress1(e.target.value)}
+                   placeholder="Calle y número"
                  />
                </div>
 
                <div className="space-y-2">
-                 <Label htmlFor="country">País *</Label>
+                 <Label htmlFor="address2">Apartamento/Piso/Edificio (Opcional)</Label>
                  <Input
-                   id="country"
-                   value={country}
-                   onChange={(e) => setCountry(e.target.value)}
-                   placeholder="País"
+                   id="address2"
+                   value={address2}
+                   onChange={(e) => setAddress2(e.target.value)}
+                   placeholder="Apartamento, suite, piso"
                  />
                </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                   <Label htmlFor="city">Ciudad *</Label>
+                   <Input
+                     id="city"
+                     value={city}
+                     onChange={(e) => setCity(e.target.value)}
+                     placeholder="Ciudad"
+                   />
+                 </div>
+
+                 <div className="space-y-2">
+                   <Label htmlFor="state">Estado/Departamento *</Label>
+                   <Input
+                     id="state"
+                     value={state}
+                     onChange={(e) => setState(e.target.value)}
+                     placeholder="Estado o Departamento"
+                   />
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                   <Label htmlFor="postalCode">Código Postal</Label>
+                   <Input
+                     id="postalCode"
+                     value={postalCode}
+                     onChange={(e) => setPostalCode(e.target.value)}
+                     placeholder="Código postal"
+                   />
+                 </div>
+
+                 <div className="space-y-2">
+                   <Label htmlFor="country">País *</Label>
+                   <Input
+                     id="country"
+                     value={country}
+                     onChange={(e) => setCountry(e.target.value)}
+                     placeholder="País"
+                   />
+                 </div>
+               </div>
              </div>
-           </div>
-         </div>
+         </Card>
         </WizardStep>
 
         {/* Step 2: Property Details */}
         <WizardStep isActive={currentStep === 1}>
-         <div>
-           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+         <Card className="p-6">
+           <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
              Detalles de la Propiedad
            </h2>
 
-           <div className="space-y-6">
+           <div className="space-y-5">
              <div className="space-y-2">
                <Label htmlFor="yearBuilt">Año de Construcción</Label>
                <Input
@@ -295,130 +272,49 @@ export default function CreatePropertyWizard() {
                />
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-2">
-                 <Label htmlFor="squareFeet">Área Total (ft²)</Label>
-                 <Input
-                   id="squareFeet"
-                   type="number"
-                   value={squareFeet}
-                   onChange={(e) => setSquareFeet(e.target.value)}
-                   placeholder="0"
-                 />
-               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="squareFeet">Área Total (m²)</Label>
+                  <Input
+                    id="squareFeet"
+                    type="number"
+                    value={squareMeters}
+                    onChange={(e) => setSquareMeters(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
 
-               <div className="space-y-2">
-                 <Label htmlFor="lotSize">Tamaño del Terreno</Label>
-                 <Input
-                   id="lotSize"
-                   type="number"
-                   value={lotSize}
-                   onChange={(e) => setLotSize(e.target.value)}
-                   placeholder="0"
-                 />
-               </div>
-             </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lotSize">Tamaño del Terreno</Label>
+                  <Input
+                    id="lotSize"
+                    type="number"
+                    value={lotSize}
+                    onChange={(e) => setLotSize(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-2">
-                 <Label htmlFor="parkingSpaces">Espacios de Estacionamiento</Label>
-                 <Input
-                   id="parkingSpaces"
-                   type="number"
-                   value={parkingSpaces}
-                   onChange={(e) => setParkingSpaces(e.target.value)}
-                   placeholder="0"
-                 />
-               </div>
-
-               <div className="space-y-2">
-                 <Label htmlFor="numFloors">Número de Pisos</Label>
-                 <Input
-                   id="numFloors"
-                   type="number"
-                   value={numFloors}
-                   onChange={(e) => setNumFloors(e.target.value)}
-                   placeholder="0"
-                 />
-               </div>
-             </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="parkingSpaces">Espacios de Estacionamiento</Label>
+                  <Input
+                    id="parkingSpaces"
+                    type="number"
+                    value={parkingSpaces}
+                    onChange={(e) => setParkingSpaces(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
            </div>
-         </div>
+         </Card>
         </WizardStep>
 
-        {/* Step 3: Amenities */}
         <WizardStep isActive={currentStep === 2}>
-         <div>
-           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-             Amenidades
-           </h2>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {AMENITIES.map((amenity) => (
-               <Card key={amenity} className="p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                 <Checkbox
-                   id={amenity}
-                   checked={amenities.includes(amenity)}
-                   onCheckedChange={() => handleAmenityToggle(amenity)}
-                 />
-                 <Label htmlFor={amenity} className="cursor-pointer font-medium text-gray-900 dark:text-white">
-                   {amenity}
-                 </Label>
-               </Card>
-             ))}
-           </div>
-         </div>
-        </WizardStep>
-
-        {/* Step 4: Owner Information */}
-        <WizardStep isActive={currentStep === 3}>
-         <div>
-           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-             Información del Propietario
-           </h2>
-
-           <div className="space-y-6">
-             <div className="space-y-2">
-               <Label htmlFor="ownerName">Nombre del Propietario *</Label>
-               <Input
-                 id="ownerName"
-                 value={ownerName}
-                 onChange={(e) => setOwnerName(e.target.value)}
-                 placeholder="Nombre completo"
-               />
-             </div>
-
-             <div className="space-y-2">
-               <Label htmlFor="ownershipPercentage">Porcentaje de Propiedad (%)</Label>
-               <Input
-                 id="ownershipPercentage"
-                 type="number"
-                 value={ownershipPercentage}
-                 onChange={(e) => setOwnershipPercentage(e.target.value)}
-                 min="0"
-                 max="100"
-                 placeholder="100"
-               />
-             </div>
-
-             <div className="space-y-2">
-               <Label htmlFor="description">Descripción de la Propiedad</Label>
-               <Textarea
-                 id="description"
-                 value={description}
-                 onChange={(e) => setDescription(e.target.value)}
-                 placeholder="Describe la propiedad, condiciones, características especiales..."
-                 rows={4}
-               />
-             </div>
-           </div>
-         </div>
-        </WizardStep>
-
-        {/* Step 5: Units */}
-        <WizardStep isActive={currentStep === 4}>
-         <div>
-           <div className="flex items-center justify-between mb-4">
+         <Card className="p-6">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Unidades</h2>
              <Button variant="outline" size="sm" onClick={handleAddUnit}>
                <Plus className="h-4 w-4 mr-2" />
@@ -426,8 +322,8 @@ export default function CreatePropertyWizard() {
              </Button>
            </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-12 gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 px-3">
+          <div className="space-y-4 overflow-x-auto">
+            <div className="hidden lg:grid grid-cols-12 gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 px-3 min-w-[900px]">
               <div className="col-span-2">Nombre Unidad</div>
               <div className="col-span-1">Habitaciones</div>
               <div className="col-span-1">Baños</div>
@@ -441,77 +337,162 @@ export default function CreatePropertyWizard() {
               {units.map((unit, index) => (
                 <div
                   key={unit.id}
-                  className="grid grid-cols-12 gap-3 items-start p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  className="lg:grid lg:grid-cols-12 gap-3 items-start p-3 bg-gray-50 dark:bg-gray-800 rounded-lg min-w-[900px] lg:min-w-0"
                 >
-                  <div className="col-span-2">
-                    <Input
-                      value={unit.name}
-                      onChange={(e) => handleUpdateUnit(unit.id, "name", e.target.value)}
-                      placeholder="Ej: Unidad A"
-                    />
+                  {/* Mobile/Tablet: Stacked Layout */}
+                  <div className="lg:hidden space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 space-y-2">
+                        <Label className="text-xs text-gray-600 dark:text-gray-400">Nombre Unidad</Label>
+                        <Input
+                          value={unit.name}
+                          onChange={(e) => handleUpdateUnit(unit.id, "name", e.target.value)}
+                          placeholder="Ej: Unidad A"
+                        />
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveUnit(unit.id)}
+                        disabled={units.length === 1}
+                        className="ml-2"
+                      >
+                        <X className="h-4 w-4"/>
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-gray-600 dark:text-gray-400">Habitaciones</Label>
+                        <Input
+                          type="number"
+                          value={unit.bedrooms}
+                          onChange={(e) => handleUpdateUnit(unit.id, "bedrooms", e.target.value)}
+                          placeholder="0"
+                          min="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-gray-600 dark:text-gray-400">Baños</Label>
+                        <Input
+                          type="number"
+                          value={unit.bathrooms}
+                          onChange={(e) => handleUpdateUnit(unit.id, "bathrooms", e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          step="0.5"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño (m²)</Label>
+                        <Input
+                          type="number"
+                          value={unit.size}
+                          onChange={(e) => handleUpdateUnit(unit.id, "size", e.target.value)}
+                          placeholder="0"
+                          min="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-gray-600 dark:text-gray-400">Renta Mercado</Label>
+                        <Input
+                          type="number"
+                          value={unit.marketRent}
+                          onChange={(e) => handleUpdateUnit(unit.id, "marketRent", e.target.value)}
+                          placeholder="0.00"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-gray-600 dark:text-gray-400">Nota</Label>
+                      <Textarea
+                        value={unit.note}
+                        onChange={(e) => handleUpdateUnit(unit.id, "note", e.target.value)}
+                        placeholder="Notas opcionales"
+                        rows={2}
+                        className="resize-none"
+                      />
+                    </div>
                   </div>
 
-                  <div className="col-span-1">
-                    <Input
-                      type="number"
-                      value={unit.bedrooms}
-                      onChange={(e) => handleUpdateUnit(unit.id, "bedrooms", e.target.value)}
-                      placeholder="0"
-                      min="0"
-                    />
-                  </div>
+                  {/* Desktop: Grid Layout */}
+                  <div className="hidden lg:contents">
+                    <div className="col-span-2">
+                      <Input
+                        value={unit.name}
+                        onChange={(e) => handleUpdateUnit(unit.id, "name", e.target.value)}
+                        placeholder="Ej: Unidad A"
+                      />
+                    </div>
 
-                  <div className="col-span-1">
-                    <Input
-                      type="number"
-                      value={unit.bathrooms}
-                      onChange={(e) => handleUpdateUnit(unit.id, "bathrooms", e.target.value)}
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                    />
-                  </div>
+                    <div className="col-span-1">
+                      <Input
+                        type="number"
+                        value={unit.bedrooms}
+                        onChange={(e) => handleUpdateUnit(unit.id, "bedrooms", e.target.value)}
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
 
-                  <div className="col-span-2">
-                    <Input
-                      type="number"
-                      value={unit.size}
-                      onChange={(e) => handleUpdateUnit(unit.id, "size", e.target.value)}
-                      placeholder="0"
-                      min="0"
-                    />
-                  </div>
+                    <div className="col-span-1">
+                      <Input
+                        type="number"
+                        value={unit.bathrooms}
+                        onChange={(e) => handleUpdateUnit(unit.id, "bathrooms", e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.5"
+                      />
+                    </div>
 
-                  <div className="col-span-2">
-                    <Input
-                      type="number"
-                      value={unit.marketRent}
-                      onChange={(e) => handleUpdateUnit(unit.id, "marketRent", e.target.value)}
-                      placeholder="0.00"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
+                    <div className="col-span-2">
+                      <Input
+                        type="number"
+                        value={unit.size}
+                        onChange={(e) => handleUpdateUnit(unit.id, "size", e.target.value)}
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
 
-                  <div className="col-span-3">
-                    <Textarea
-                      value={unit.note}
-                      onChange={(e) => handleUpdateUnit(unit.id, "note", e.target.value)}
-                      placeholder="Notas opcionales"
-                      rows={1}
-                      className="resize-none"
-                    />
-                  </div>
+                    <div className="col-span-2">
+                      <Input
+                        type="number"
+                        value={unit.marketRent}
+                        onChange={(e) => handleUpdateUnit(unit.id, "marketRent", e.target.value)}
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
 
-                  <div className="col-span-1 flex justify-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveUnit(unit.id)}
-                      disabled={units.length === 1}
-                    >
-                      <X className="h-4 w-4"/>
-                    </Button>
+                    <div className="col-span-3">
+                      <Textarea
+                        value={unit.note}
+                        onChange={(e) => handleUpdateUnit(unit.id, "note", e.target.value)}
+                        placeholder="Notas opcionales"
+                        rows={1}
+                        className="resize-none"
+                      />
+                    </div>
+
+                    <div className="col-span-1 flex justify-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveUnit(unit.id)}
+                        disabled={units.length === 1}
+                      >
+                        <X className="h-4 w-4"/>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -524,7 +505,7 @@ export default function CreatePropertyWizard() {
               </div>
             )}
           </div>
-         </div>
+         </Card>
         </WizardStep>
       </Wizard>
     </div>
