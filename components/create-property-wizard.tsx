@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Wizard, WizardStepContent } from "@/components/ui/wizard"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, X, Upload } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Wizard } from "@/components/custom/wizard/wizard"
+import { WizardStepper } from "@/components/custom/wizard/wizard-stepper"
+import { WizardStep } from "@/components/custom/wizard/wizard-step"
 
 type PropertyType = "unifamiliar" | "multifamiliar" | "comercial"
 
@@ -25,8 +27,16 @@ type Unit = {
 
 const AMENITIES = ["Piscina", "Gym", "Lavandería", "Ascensor", "Sistema de seguridad", "Amigable con mascotas", "Zona verde", "Estacionamiento techado"]
 
+const WIZARD_STEPS = [
+  { id: "basic", title: "Información Básica", description: "Nombre y dirección" },
+  { id: "details", title: "Detalles de Propiedad", description: "Características" },
+  { id: "amenities", title: "Amenidades", description: "Servicios disponibles" },
+  { id: "owner", title: "Propietario", description: "Información del dueño" },
+  { id: "units", title: "Unidades", description: "Configurar unidades" },
+]
+
 export default function CreatePropertyWizard() {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
 
   // Basic Information
   const [propertyName, setPropertyName] = useState("")
@@ -101,6 +111,18 @@ export default function CreatePropertyWizard() {
     )
   }
 
+  const handleNext = () => {
+    if (currentStep < WIZARD_STEPS.length - 1) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
   const handleSubmit = () => {
     const propertyData = {
       propertyName,
@@ -132,28 +154,31 @@ export default function CreatePropertyWizard() {
     alert("¡Propiedad creada exitosamente!")
   }
 
-  const steps = [
-    { number: 1, title: "Información Básica" },
-    { number: 2, title: "Detalles de Propiedad" },
-    { number: 3, title: "Amenidades" },
-    { number: 4, title: "Propietario" },
-    { number: 5, title: "Unidades" },
-  ]
-
   return (
-    <Wizard
-      steps={steps}
-      currentStep={currentStep}
-      onStepChange={setCurrentStep}
-      onComplete={handleSubmit}
-      title="Agregar Nueva Propiedad"
-      subtitle={`Paso ${currentStep} de ${steps.length}: ${steps[currentStep - 1]?.title || ""}`}
-      nextButtonText="Siguiente"
-      previousButtonText="Anterior"
-      submitButtonText="Crear Propiedad"
-    >
-       {/* Step 1: Basic Information */}
-       <WizardStepContent currentStep={currentStep} stepNumber={1}>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">
+          Agregar Nueva Propiedad
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Complete los siguientes pasos para registrar una propiedad
+        </p>
+      </div>
+
+      {/* Wizard Stepper */}
+      <WizardStepper steps={WIZARD_STEPS} currentStep={currentStep} />
+
+      {/* Wizard Content */}
+      <Wizard
+        currentStep={currentStep}
+        totalSteps={WIZARD_STEPS.length}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onSubmit={handleSubmit}
+      >
+        {/* Step 1: Basic Information */}
+        <WizardStep isActive={currentStep === 0}>
          <div>
            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
              Información Básica
@@ -249,10 +274,10 @@ export default function CreatePropertyWizard() {
              </div>
            </div>
          </div>
-       </WizardStepContent>
+        </WizardStep>
 
-       {/* Step 2: Property Details */}
-       <WizardStepContent currentStep={currentStep} stepNumber={2}>
+        {/* Step 2: Property Details */}
+        <WizardStep isActive={currentStep === 1}>
          <div>
            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
              Detalles de la Propiedad
@@ -319,10 +344,10 @@ export default function CreatePropertyWizard() {
              </div>
            </div>
          </div>
-       </WizardStepContent>
+        </WizardStep>
 
-       {/* Step 3: Amenities */}
-       <WizardStepContent currentStep={currentStep} stepNumber={3}>
+        {/* Step 3: Amenities */}
+        <WizardStep isActive={currentStep === 2}>
          <div>
            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
              Amenidades
@@ -343,10 +368,10 @@ export default function CreatePropertyWizard() {
              ))}
            </div>
          </div>
-       </WizardStepContent>
+        </WizardStep>
 
-       {/* Step 4: Owner Information */}
-       <WizardStepContent currentStep={currentStep} stepNumber={4}>
+        {/* Step 4: Owner Information */}
+        <WizardStep isActive={currentStep === 3}>
          <div>
            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
              Información del Propietario
@@ -388,10 +413,10 @@ export default function CreatePropertyWizard() {
              </div>
            </div>
          </div>
-       </WizardStepContent>
+        </WizardStep>
 
-       {/* Step 5: Units */}
-       <WizardStepContent currentStep={currentStep} stepNumber={5}>
+        {/* Step 5: Units */}
+        <WizardStep isActive={currentStep === 4}>
          <div>
            <div className="flex items-center justify-between mb-4">
              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Unidades</h2>
@@ -499,8 +524,9 @@ export default function CreatePropertyWizard() {
               </div>
             )}
           </div>
-        </div>
-      </WizardStepContent>
-    </Wizard>
+         </div>
+        </WizardStep>
+      </Wizard>
+    </div>
   )
 }
