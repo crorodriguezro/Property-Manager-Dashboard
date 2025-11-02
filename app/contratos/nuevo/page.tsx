@@ -1,4 +1,4 @@
-import Layout from "@/components/kokonutui/layout"
+import Layout from "@/components/base/layout"
 import CreateLeaseWizard from "@/components/create-lease-wizard"
 
 export default function NewLeasePage() {

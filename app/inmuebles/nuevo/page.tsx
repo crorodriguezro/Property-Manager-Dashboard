@@ -1,4 +1,4 @@
-import Layout from "@/components/kokonutui/layout"
+import Layout from "@/components/base/layout"
 import CreatePropertyWizard from "@/components/create-property-wizard"
 
 export default function NewPropertyPage() {
