@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import Image from "next/image"
 import Link from "next/link"
+import { useProperty } from "@/hooks/use-properties"
 
 interface PropertyDetailProps {
   propertyId: string
@@ -92,9 +92,30 @@ const mockPropertyData = {
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [activeTab, setActiveTab] = useState("details")
+  const { property: apiProperty, loading, error } = useProperty(propertyId)
 
   // Get property data or use default
-  const property = mockPropertyData[propertyId as keyof typeof mockPropertyData] || mockPropertyData["1"]
+  const property = apiProperty || mockPropertyData[propertyId as keyof typeof mockPropertyData] || mockPropertyData["1"]
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando propiedad...</p>
+        </Card>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-12 text-center">
+          <p className="text-red-500 dark:text-red-400">Error: {error.message}</p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

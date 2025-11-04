@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,8 +12,11 @@ import { Button } from "@/components/ui/button"
 import { Wizard } from "@/components/custom/wizard/wizard"
 import { WizardStepper } from "@/components/custom/wizard/wizard-stepper"
 import { WizardStep } from "@/components/custom/wizard/wizard-step"
+import { usePropertyMutations } from "@/hooks/use-properties"
+import { toast } from "@/hooks/use-toast"
+import type { PropertyType } from "@/lib/types/property"
 
-type PropertyType = "unifamiliar" | "multifamiliar" | "comercial"
+type PropertyTypeForm = "unifamiliar" | "multifamiliar" | "comercial"
 
 type Unit = {
   id: string
@@ -35,9 +39,12 @@ const WIZARD_STEPS = [
 export default function CreatePropertyWizard() {
   const [currentStep, setCurrentStep] = useState(0)
 
+  const router = useRouter()
+  const { createProperty, loading } = usePropertyMutations()
+
   // Basic Information
   const [propertyName, setPropertyName] = useState("")
-  const [propertyType, setPropertyType] = useState<PropertyType | "">("")
+  const [propertyType, setPropertyType] = useState<PropertyTypeForm | "">("")
   const [address1, setAddress1] = useState("")
   const [address2, setAddress2] = useState("")
   const [city, setCity] = useState("")
@@ -104,29 +111,58 @@ export default function CreatePropertyWizard() {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!propertyName || !propertyType || !address1 || !city || !state || !country) {
+      toast({
+        title: "Error",
+        description: "Por favor complete todos los campos requeridos",
+        variant: "destructive",
+      })
+      return
+    }
+
     const propertyData = {
       propertyName,
-      propertyType,
+      propertyType: propertyType.toUpperCase() as PropertyType,
       address: {
         address1,
-        address2,
+        address2: address2 || undefined,
         city,
         state,
-        postalCode,
+        postalCode: postalCode || "",
         country,
       },
       details: {
-        yearBuilt,
-        squareFeet: squareMeters,
-        lotSize,
-        parkingSpaces,
+        yearBuilt: yearBuilt || undefined,
+        area: squareMeters || undefined,
+        lotSize: lotSize || undefined,
+        parkingSpaces: parkingSpaces || undefined,
       },
-      description,
-      units,
+      description: description || undefined,
+      units: units.map(unit => ({
+        name: unit.name,
+        bedrooms: unit.bedrooms || undefined,
+        bathrooms: unit.bathrooms || undefined,
+        size: unit.size || undefined,
+        marketRent: unit.marketRent || undefined,
+        note: unit.note || undefined,
+      })),
     }
-    console.log("Creating property:", propertyData)
-    alert("¡Propiedad creada exitosamente!")
+
+    try {
+      await createProperty(propertyData)
+      toast({
+        title: "Éxito",
+        description: "¡Propiedad creada exitosamente!",
+      })
+      router.push("/inmuebles")
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al crear la propiedad",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -171,19 +207,19 @@ export default function CreatePropertyWizard() {
                  />
                </div>
 
-               <div className="space-y-2">
-                 <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
-                 <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
-                   <SelectTrigger  className="w-full"  id="propertyType">
-                     <SelectValue placeholder="Seleccionar tipo de propiedad"/>
-                   </SelectTrigger>
-                   <SelectContent>
-                     <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
-                     <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
-                     <SelectItem value="comercial">Comercial</SelectItem>
-                   </SelectContent>
-                 </Select>
-               </div>
+                <div className="space-y-2">
+                  <Label htmlFor="propertyType">Tipo de Propiedad *</Label>
+                  <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyTypeForm)}>
+                    <SelectTrigger  className="w-full"  id="propertyType">
+                      <SelectValue placeholder="Seleccionar tipo de propiedad"/>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unifamiliar">Unifamiliar</SelectItem>
+                      <SelectItem value="multifamiliar">Multifamiliar</SelectItem>
+                      <SelectItem value="comercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
              </div>
 
                <div className="space-y-2">

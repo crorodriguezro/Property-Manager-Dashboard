@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Search, SlidersHorizontal, Building2, Home, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Building2, Home, Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
+import { useProperties } from "@/hooks/use-properties"
 
 interface Property {
   id: string
@@ -22,84 +22,6 @@ interface Property {
   image?: string
 }
 
-const mockProperties: Property[] = [
-  {
-    id: "1",
-    name: "Villa Sunset",
-    address: "Miami Beach, FL 33340",
-    type: "Unifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 2,
-    totalUnits: 1,
-    monthlyRevenue: 3500,
-    image: "/placeholder.jpg",
-  },
-  {
-    id: "2",
-    name: "Edificio Central",
-    address: "Miami Beach, FL 33340",
-    type: "Multifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 2,
-    totalUnits: 8,
-    monthlyRevenue: 7500,
-    image: "/placeholder.jpg",
-  },
-  {
-    id: "3",
-    name: "Casa del Mar",
-    address: "Miami Beach, FL 33340",
-    type: "Unifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 10,
-    totalUnits: 12,
-    monthlyRevenue: 5200,
-    image: "/placeholder.jpg",
-  },
-  {
-    id: "4",
-    name: "Residencial Palmas",
-    address: "Miami Beach, FL 33340",
-    type: "Comercial",
-    activeLeases: 3,
-    occupiedUnits: 1,
-    totalUnits: 1,
-    monthlyRevenue: 2800,
-    image: "/placeholder.jpg",
-  },
-  {
-    id: "5",
-    name: "Torre Azul",
-    address: "Miami Beach, FL 33340",
-    type: "Multifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 8,
-    totalUnits: 34,
-    monthlyRevenue: 15400,
-  },
-  {
-    id: "6",
-    name: "Complejo Jardines",
-    address: "Miami Beach, FL 33340",
-    type: "Multifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 28,
-    totalUnits: 30,
-    monthlyRevenue: 12500,
-  },
-  {
-    id: "7",
-    name: "Vista Hermosa",
-    address: "Miami Beach, FL 33340",
-    type: "Unifamiliar",
-    activeLeases: 3,
-    occupiedUnits: 2,
-    totalUnits: 1,
-    monthlyRevenue: 3500,
-    image: "/placeholder.jpg",
-  },
-]
-
 export default function PropertiesList() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
@@ -107,7 +29,9 @@ export default function PropertiesList() {
   const [itemsPerPage, setItemsPerPage] = useState(5)
   const [currentPage, setCurrentPage] = useState(1)
 
-  let filteredProperties = mockProperties.filter((property) => {
+  const { properties, loading, error } = useProperties()
+
+  let filteredProperties = properties.filter((property) => {
     const matchesSearch = property.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesType = filterType === "all" || property.type === filterType
     return matchesSearch && matchesType
@@ -131,7 +55,33 @@ export default function PropertiesList() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedProperties = filteredProperties.slice(startIndex, startIndex + itemsPerPage)
 
-  const propertyTypes = ["Unifamiliar", "Multifamiliar", "Comercial"]
+  const propertyTypes = ["UNIFAMILIAR", "MULTIFAMILIAR", "COMERCIAL"]
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Inmuebles</h1>
+        </div>
+        <Card className="p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando propiedades...</p>
+        </Card>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Inmuebles</h1>
+        </div>
+        <Card className="p-12 text-center">
+          <p className="text-red-500 dark:text-red-400">Error: {error.message}</p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
