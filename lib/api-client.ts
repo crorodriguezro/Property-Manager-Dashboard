@@ -27,12 +27,13 @@ const axiosInstance = axios.create({
 
 // Request interceptor
 axiosInstance.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Add auth token if available
-    // const token = getAuthToken()
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    const { authService } = await import('@/services/auth-service')
+    const token = authService.getAccessToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => Promise.reject(error)
@@ -41,8 +42,35 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
+    const originalRequest = error.config
+
     if (error.response) {
+      // Handle 401 Unauthorized - try to refresh token
+      if (error.response.status === 401 && originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true
+
+        try {
+          const { authService } = await import('@/services/auth-service')
+          const refreshToken = authService.getRefreshToken()
+
+          if (refreshToken) {
+            const newTokens = await authService.refreshToken(refreshToken)
+            authService.storeTokens(newTokens)
+
+            // Retry the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`
+            return axiosInstance(originalRequest)
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError)
+          // If refresh fails, redirect to login
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login'
+          }
+        }
+      }
+
       throw new ApiError(
         (error.response.data as any)?.message || error.message,
         error.response.status,

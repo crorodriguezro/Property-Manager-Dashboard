@@ -1,6 +1,7 @@
 import { LogOut, MoveUpRight, Settings, CreditCard, FileText } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useAuthContext } from "@/contexts/auth-context"
 
 interface MenuItem {
   label: string
@@ -11,17 +12,17 @@ interface MenuItem {
 }
 
 interface Profile01Props {
-  name: string
-  role: string
-  avatar: string
+  name?: string
+  role?: string
+  avatar?: string
   subscription?: string
 }
 
 const defaultProfile = {
-  name: "Eugene An",
-  role: "Prompt Engineer",
+  name: "Usuario",
+  role: "Administrador",
   avatar: "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-02-albo9B0tWOSLXCVZh9rX9KFxXIVWMr.png",
-  subscription: "Free Trial",
+  subscription: "Activo",
 } satisfies Required<Profile01Props>
 
 export default function Profile01({
@@ -30,6 +31,11 @@ export default function Profile01({
   avatar = defaultProfile.avatar,
   subscription = defaultProfile.subscription,
 }: Partial<Profile01Props> = defaultProfile) {
+  const { user, logout } = useAuthContext()
+
+  const displayName = user?.name || name
+  const displayEmail = user?.email || ""
+  const displayAvatar = user?.picture || avatar
   const menuItems: MenuItem[] = [
     {
       label: "Subscription",
@@ -58,8 +64,8 @@ export default function Profile01({
           <div className="flex items-center gap-4 mb-8">
             <div className="relative shrink-0">
               <Image
-                src={avatar}
-                alt={name}
+                src={displayAvatar}
+                alt={displayName}
                 width={72}
                 height={72}
                 className="rounded-full ring-4 ring-white dark:ring-zinc-900 object-cover"
@@ -69,8 +75,8 @@ export default function Profile01({
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{name}</h2>
-              <p className="text-zinc-600 dark:text-zinc-400">{role}</p>
+              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{displayName}</h2>
+              <p className="text-zinc-600 dark:text-zinc-400">{displayEmail || role}</p>
             </div>
           </div>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-6" />
@@ -96,13 +102,14 @@ export default function Profile01({
 
             <button
               type="button"
-              className="w-full flex items-center justify-between p-2 
-                                hover:bg-zinc-50 dark:hover:bg-zinc-800/50 
+              onClick={logout}
+              className="w-full flex items-center justify-between p-2
+                                hover:bg-zinc-50 dark:hover:bg-zinc-800/50
                                 rounded-lg transition-colors duration-200"
             >
               <div className="flex items-center gap-2">
                 <LogOut className="w-4 h-4" />
-                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Logout</span>
+                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Cerrar Sesión</span>
               </div>
             </button>
           </div>

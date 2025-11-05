@@ -6,6 +6,7 @@ import { Bell, ChevronRight } from "lucide-react"
 import Profile01 from "./profile-01"
 import Link from "next/link"
 import { ThemeToggle } from "../theme-toggle"
+import { useAuthContext } from "@/contexts/auth-context"
 
 interface BreadcrumbItem {
   label: string
@@ -13,9 +14,11 @@ interface BreadcrumbItem {
 }
 
 export default function TopNav() {
+  const { user } = useAuthContext()
+
   const breadcrumbs: BreadcrumbItem[] = [
-    { label: "Ocre", href: "#" },
-    { label: "dashboard", href: "#" },
+    { label: "Property Manager", href: "/dashboard" },
+    { label: "Dashboard", href: "/dashboard" },
   ]
 
   return (
@@ -51,7 +54,7 @@ export default function TopNav() {
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
             <Image
-              src="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
+              src={user?.picture || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
               alt="User avatar"
               width={28}
               height={28}
@@ -63,7 +66,7 @@ export default function TopNav() {
             sideOffset={8}
             className="w-[280px] sm:w-80 bg-background border-border rounded-lg shadow-lg"
           >
-            <Profile01 avatar="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png" />
+            <Profile01 />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
